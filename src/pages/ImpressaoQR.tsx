@@ -61,91 +61,7 @@ export function ImpressaoQR({ onBack }: ImpressaoQRProps) {
     }
   };
 
-  const imprimirQRCodes = () => {
-    if (!qrGridRef.current) return;
 
-    const printWindow = window.open('', '', 'height=600,width=800');
-    if (!printWindow) return;
-
-    printWindow.document.write('<html><head><title>Impressão de QR Codes</title>');
-    printWindow.document.write(`
-      <style>
-        body {
-          font-family: Arial, sans-serif;
-          margin: 20px;
-        }
-        h1 {
-          text-align: center;
-          margin-bottom: 30px;
-        }
-        .qr-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 30px;
-          page-break-inside: avoid;
-        }
-        .qr-item {
-          text-align: center;
-          page-break-inside: avoid;
-          break-inside: avoid;
-        }
-        .qr-item img {
-          max-width: 200px;
-          height: auto;
-        }
-        .qr-nome {
-          font-size: 12px;
-          font-weight: bold;
-          margin-top: 10px;
-          word-wrap: break-word;
-        }
-        .qr-curso {
-          font-size: 10px;
-          color: #666;
-          margin-top: 5px;
-        }
-        @media print {
-          body {
-            margin: 10px;
-          }
-          .qr-grid {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-          }
-        }
-      </style>
-    `);
-    printWindow.document.write('</head><body>');
-    printWindow.document.write('<h1>QR Codes - Controle de Presença</h1>');
-    printWindow.document.write('<div class="qr-grid">');
-
-    alunosFiltrados.forEach((aluno) => {
-      if (!aluno.qrCodeUrl) return;
-
-      // Gerar QR Code localmente para impressão
-      const canvas = document.getElementById(`qr-${aluno._id}`) as HTMLCanvasElement;
-      if (canvas) {
-        const imageUrl = canvas.toDataURL('image/png');
-        printWindow.document.write(`
-          <div class="qr-item">
-            <img src="${imageUrl}" alt="QR Code ${aluno.nome}" />
-            <div class="qr-nome">${aluno.nome}</div>
-            <div class="qr-curso">${aluno.curso}</div>
-          </div>
-        `);
-      }
-    });
-
-    printWindow.document.write('</div>');
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
-
-    // Aguardar que o conteúdo seja renderizado
-    setTimeout(() => {
-      printWindow.focus();
-      printWindow.print();
-    }, 250);
-  };
 
   const downloadQRCode = (aluno: Aluno) => {
     if (!aluno.qrCodeUrl) {
@@ -270,13 +186,6 @@ export function ImpressaoQR({ onBack }: ImpressaoQRProps) {
 
             {/* Botões de Ação */}
             <div className="flex flex-col gap-2">
-              <button
-                onClick={imprimirQRCodes}
-                disabled={alunosFiltrados.length === 0}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors font-semibold"
-              >
-                Imprimir QR Codes
-              </button>
               <button
                 onClick={downloadQRCodesZip}
                 disabled={alunosFiltrados.length === 0 || isDownloadingZip}

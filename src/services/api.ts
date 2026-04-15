@@ -118,6 +118,14 @@ export const presencaAPI = {
     });
     return response.data.data;
   },
+
+  // Obter relatório com filtro por períodos
+  getRelatorioPeriodos: async (periodo: string = 'hoje', curso?: string): Promise<Presenca[]> => {
+    const response = await api.get<RelatorioResponse>('/presenca/relatorio-periodos', {
+      params: { periodo, curso },
+    });
+    return response.data.data;
+  },
 };
 
 export default api;
