@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: monitoraapan-frontend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    port: 3000
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: VITE_API_URL
+        value: https://monitoraapanfacial-backend.onrender.com
+        scope: build
