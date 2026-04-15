@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
+import JSZip from 'jszip';
 import { alunosAPI } from '../services/api';
 import { Aluno } from '../types/index';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Download } from 'lucide-react';
 
 interface ImpressaoQRProps {
   onBack?: () => void;
@@ -13,6 +14,8 @@ export function ImpressaoQR({ onBack }: ImpressaoQRProps) {
   const [cursos, setCursos] = useState<string[]>([]);
   const [cursoSelecionado, setCursoSelecionado] = useState<string>('');
   const [busca, setBusca] = useState<string>('');
+  const [isDownloadingZip, setIsDownloadingZip] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string>('');
   const qrGridRef = useRef<HTMLDivElement>(null);
 
   // Carregar alunos ao montar o componente
@@ -36,6 +39,14 @@ export function ImpressaoQR({ onBack }: ImpressaoQRProps) {
 
     setAlunosFiltrados(filtrados);
   }, [alunos, cursoSelecionado, busca]);
+
+  // Toast notification effect
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(''), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
 
   const carregarAlunos = async () => {
     try {
@@ -154,9 +165,55 @@ export function ImpressaoQR({ onBack }: ImpressaoQRProps) {
     document.body.removeChild(link);
   };
 
-  const downloadTodosPDF = async () => {
-    // Implementar download de PDF com múltiplos QR codes
-    alert('Funcionalidade de download em PDF em desenvolvimento');
+  const downloadQRCodesZip = async () => {
+    if (alunosFiltrados.length === 0) {
+      setToastMessage('Nenhum QR Code para baixar');
+      return;
+    }
+
+    setIsDownloadingZip(true);
+    setToastMessage('Preparando download...');
+
+    try {
+      const zip = new JSZip();
+      const courseName = cursoSelecionado || 'Todos';
+      const date = new Date().toISOString().split('T')[0];
+
+      for (const aluno of alunosFiltrados) {
+        if (!aluno.qrCodeUrl) continue;
+
+        try {
+          // Fetch the image from Cloudinary
+          const response = await fetch(aluno.qrCodeUrl);
+          const blob = await response.blob();
+
+          // Add to ZIP with sanitized filename
+          const fileName = `QR-${aluno.nome}.png`;
+          zip.file(fileName, blob);
+        } catch (error) {
+          console.error(`Erro ao baixar QR de ${aluno.nome}:`, error);
+        }
+      }
+
+      // Generate ZIP file
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+
+      // Create download link
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(zipBlob);
+      link.download = `QR-${courseName}-${date}.zip`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+
+      setToastMessage(`${alunosFiltrados.length} QR Code(s) baixado(s) com sucesso!`);
+    } catch (error) {
+      console.error('Erro ao criar ZIP:', error);
+      setToastMessage('Erro ao criar arquivo ZIP');
+    } finally {
+      setIsDownloadingZip(false);
+    }
   };
 
   return (
@@ -221,11 +278,12 @@ export function ImpressaoQR({ onBack }: ImpressaoQRProps) {
                 Imprimir QR Codes
               </button>
               <button
-                onClick={downloadTodosPDF}
-                disabled={alunosFiltrados.length === 0}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 transition-colors font-semibold"
+                onClick={downloadQRCodesZip}
+                disabled={alunosFiltrados.length === 0 || isDownloadingZip}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition-colors font-semibold flex items-center justify-center gap-2"
               >
-                Download PDF
+                <Download size={18} />
+                {isDownloadingZip ? 'Baixando...' : 'Download ZIP'}
               </button>
             </div>
           </div>
@@ -287,6 +345,13 @@ export function ImpressaoQR({ onBack }: ImpressaoQRProps) {
           )}
         </div>
       </div>
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-4 right-4 bg-gray-800 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in-up">
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 }
