@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import FormCadastro from '../components/FormCadastro';
 import GaleriaAlunos from '../components/GaleriaAlunos';
-import ModalCurso from '../components/ModalCurso';
 import { Aluno, Curso } from '../types/index';
 import { alunosAPI, cursosAPI } from '../services/api';
 import { toast } from 'react-toastify';
-import { Loader, Plus, ArrowLeft } from 'lucide-react';
+import { Loader, ArrowLeft } from 'lucide-react';
 
 interface AlunosPageProps {
   onBack: () => void;
@@ -15,7 +14,6 @@ export default function AlunosPage({ onBack }: AlunosPageProps) {
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [carregando, setCarregando] = useState(true);
-  const [showModalCurso, setShowModalCurso] = useState(false);
 
   useEffect(() => {
     carregarDados();
@@ -67,17 +65,6 @@ export default function AlunosPage({ onBack }: AlunosPageProps) {
             </p>
           </div>
         </div>
-        
-        {/* Botão de Adicionar Curso */}
-        {!carregando && (
-          <button
-            onClick={() => setShowModalCurso(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center gap-2 h-fit"
-          >
-            <Plus size={20} />
-            Novo Curso
-          </button>
-        )}
       </div>
 
       {/* Conteúdo Principal */}
@@ -110,16 +97,6 @@ export default function AlunosPage({ onBack }: AlunosPageProps) {
           </div>
         </div>
       )}
-
-      {/* Modal de Adicionar Curso */}
-      <ModalCurso
-        isOpen={showModalCurso}
-        onClose={() => setShowModalCurso(false)}
-        onSuccess={() => {
-          setShowModalCurso(false);
-          carregarDados();
-        }}
-      />
     </div>
   );
 }
