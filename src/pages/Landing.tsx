@@ -29,28 +29,30 @@ export default function Landing({ onNavigate }: LandingProps) {
             onClick={() => onNavigate('alunos')}
             className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-6 border-2 border-transparent hover:border-blue-500 aspect-video flex flex-col"
           >
-            {/* Icon */}
-            <div className="mb-4">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
-                <Users className="text-blue-600" size={32} />
+            <div className="flex flex-col items-center text-center h-full justify-between">
+              {/* Icon */}
+              <div className="mb-4">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
+                  <Users className="text-blue-600" size={32} />
+                </div>
               </div>
-            </div>
 
-            {/* Conteúdo */}
-            <div className="flex-1 flex flex-col items-center justify-center py-2">
-              <h2 className="text-lg font-bold text-gray-800 mb-2">
-                Cadastro de Alunos
-              </h2>
-              <p className="text-gray-600 text-sm">
-                Registre e gerencie alunos
-              </p>
-            </div>
+              {/* Conteúdo */}
+              <div className="flex-1 flex flex-col items-center justify-center py-2">
+                <h2 className="text-lg font-bold text-gray-800 mb-2">
+                  Cadastro de Alunos
+                </h2>
+                <p className="text-gray-600 text-sm">
+                  Registre e gerencie alunos
+                </p>
+              </div>
 
-            {/* Botão */}
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2 mt-2 text-sm">
-              Acessar
-              <ArrowRight size={16} />
-            </button>
+              {/* Botão */}
+              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition flex items-center justify-center gap-2 mt-2 text-sm">
+                Acessar
+                <ArrowRight size={16} />
+              </button>
+            </div>
           </div>
 
           {/* Card - Cadastro de Cursos */}
