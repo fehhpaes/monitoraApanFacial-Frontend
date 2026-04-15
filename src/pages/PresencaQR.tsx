@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { presencaAPI, alunosAPI } from '../services/api';
-import { Aluno, Presenca } from '../types/index';
+import { Presenca } from '../types/index';
 import { ArrowLeft } from 'lucide-react';
 
 interface ScanResult {
@@ -142,10 +142,6 @@ export function PresencaQR({ onBack }: PresencaQRProps) {
       hour: '2-digit',
       minute: '2-digit',
     });
-  };
-
-  const formatarData = (data: string) => {
-    return new Date(data).toLocaleDateString('pt-BR');
   };
 
   return (

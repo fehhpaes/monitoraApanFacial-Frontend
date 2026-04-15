@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import QRCode from 'qrcode.react';
+import { QRCodeSVG as QRCode } from 'qrcode.react';
 import { alunosAPI } from '../services/api';
 import { Aluno } from '../types/index';
 import { ArrowLeft } from 'lucide-react';
@@ -111,15 +111,6 @@ export function ImpressaoQR({ onBack }: ImpressaoQRProps) {
 
     alunosFiltrados.forEach((aluno) => {
       if (!aluno.qrCodeUrl) return;
-
-      const qrData = JSON.stringify({
-        _id: aluno._id,
-        nome: aluno.nome,
-        curso: aluno.curso,
-        fotoUrl: aluno.fotoUrl,
-        emailResponsavel: aluno.emailResponsavel,
-        geradoEm: new Date().toISOString(),
-      });
 
       // Gerar QR Code localmente para impressão
       const canvas = document.getElementById(`qr-${aluno._id}`) as HTMLCanvasElement;

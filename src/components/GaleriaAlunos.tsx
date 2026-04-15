@@ -4,7 +4,7 @@ import CardAluno from './CardAluno';
 import ModalEditar from './ModalEditar';
 import { alunosAPI } from '../services/api';
 import { toast } from 'react-toastify';
-import { Trash2, AlertCircle, Loader } from 'lucide-react';
+import { Trash2, AlertCircle } from 'lucide-react';
 
 interface GaleriaAlunosProps {
   alunos: Aluno[];
@@ -16,7 +16,6 @@ export default function GaleriaAlunos({ alunos, cursos, onAlunoDeleted }: Galeri
   const [alunoEditando, setAlunoEditando] = useState<Aluno | null>(null);
   const [alunoParaDeletar, setAlunoParaDeletar] = useState<string | null>(null);
   const [carregandoDeletar, setCarregandoDeletar] = useState(false);
-  const [alunoGerandoQR, setAlunoGerandoQR] = useState<string | null>(null);
   const [filtro, setFiltro] = useState('');
   const [selectedCurso, setSelectedCurso] = useState('');
   const [selectedTipo, setSelectedTipo] = useState('');
@@ -30,16 +29,13 @@ export default function GaleriaAlunos({ alunos, cursos, onAlunoDeleted }: Galeri
   };
 
   const handleGenerateQRCode = async (id: string) => {
-    setAlunoGerandoQR(id);
     try {
-      const response = await alunosAPI.generateQRCode(id);
+      await alunosAPI.generateQRCode(id);
       toast.success('QR Code gerado com sucesso!');
       onAlunoDeleted(); // Recarregar alunos
     } catch (error) {
       console.error('Erro ao gerar QR Code:', error);
       toast.error('Erro ao gerar QR Code. Tente novamente.');
-    } finally {
-      setAlunoGerandoQR(null);
     }
   };
 
