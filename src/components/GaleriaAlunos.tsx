@@ -17,6 +17,8 @@ export default function GaleriaAlunos({ alunos, cursos, onAlunoDeleted }: Galeri
   const [alunoParaDeletar, setAlunoParaDeletar] = useState<string | null>(null);
   const [carregandoDeletar, setCarregandoDeletar] = useState(false);
   const [filtro, setFiltro] = useState('');
+  const [selectedCurso, setSelectedCurso] = useState('');
+  const [selectedTipo, setSelectedTipo] = useState('');
 
   const handleEditClick = (aluno: Aluno) => {
     setAlunoEditando(aluno);
@@ -43,10 +45,42 @@ export default function GaleriaAlunos({ alunos, cursos, onAlunoDeleted }: Galeri
     }
   };
 
-  const alunosFiltrados = alunos.filter((aluno) =>
-    aluno.nome.toLowerCase().includes(filtro.toLowerCase()) ||
-    aluno.curso.toLowerCase().includes(filtro.toLowerCase())
-  );
+  // Função para contar alunos por curso
+  const contarAlunosPorCurso = (nomeCurso: string): number => {
+    return alunos.filter(a => a.curso === nomeCurso).length;
+  };
+
+  // Função para contar alunos por tipo
+  const contarAlunosPorTipo = (tipo: string): number => {
+    return alunos.filter(aluno => {
+      const cursoObj = cursos.find(c => c.nome === aluno.curso);
+      return cursoObj && cursoObj.tipo === tipo;
+    }).length;
+  };
+
+  // Lógica de filtragem combinada
+  const alunosFiltrados = alunos.filter((aluno) => {
+    // Filtro por busca de texto (mantém o existente)
+    if (filtro && !aluno.nome.toLowerCase().includes(filtro.toLowerCase()) && 
+        !aluno.curso.toLowerCase().includes(filtro.toLowerCase())) {
+      return false;
+    }
+
+    // Filtro por curso selecionado
+    if (selectedCurso && aluno.curso !== selectedCurso) {
+      return false;
+    }
+
+    // Filtro por tipo de curso
+    if (selectedTipo) {
+      const cursoObj = cursos.find(c => c.nome === aluno.curso);
+      if (!cursoObj || cursoObj.tipo !== selectedTipo) {
+        return false;
+      }
+    }
+
+    return true;
+  });
 
   if (alunos.length === 0) {
     return (
@@ -66,9 +100,51 @@ export default function GaleriaAlunos({ alunos, cursos, onAlunoDeleted }: Galeri
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
           Alunos Cadastrados ({alunosFiltrados.length})
         </h2>
+
+        {/* Seção de Filtros */}
+        <div className="bg-gray-50 p-3 rounded-lg mb-4 flex flex-col md:flex-row gap-3">
+          {/* Filtro Curso */}
+          <select
+            value={selectedCurso}
+            onChange={(e) => setSelectedCurso(e.target.value)}
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">📚 Todos os Cursos</option>
+            {cursos.map(curso => (
+              <option key={curso._id} value={curso.nome}>
+                {curso.nome} ({contarAlunosPorCurso(curso.nome)} alunos)
+              </option>
+            ))}
+          </select>
+
+          {/* Filtro Tipo */}
+          <select
+            value={selectedTipo}
+            onChange={(e) => setSelectedTipo(e.target.value)}
+            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">📅 Todos os Tipos</option>
+            <option value="modular">Modular ({contarAlunosPorTipo('modular')} alunos)</option>
+            <option value="integral">Integral ({contarAlunosPorTipo('integral')} alunos)</option>
+          </select>
+
+          {/* Botão Reset */}
+          <button
+            onClick={() => {
+              setSelectedCurso('');
+              setSelectedTipo('');
+              setFiltro('');
+            }}
+            className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition whitespace-nowrap"
+          >
+            🔄 Reset
+          </button>
+        </div>
+
+        {/* Busca por Texto */}
         <input
           type="text"
-          placeholder="Buscar por nome ou curso..."
+          placeholder="🔍 Buscar por nome ou curso..."
           value={filtro}
           onChange={(e) => setFiltro(e.target.value)}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
