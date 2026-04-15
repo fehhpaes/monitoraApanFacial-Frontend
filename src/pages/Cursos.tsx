@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import FormCurso from '../components/FormCurso';
 import ModalCurso from '../components/ModalCurso';
-import { Curso } from '../types/index';
 import { cursosAPI } from '../services/api';
 import { toast } from 'react-toastify';
 import { Loader, Plus, ArrowLeft, Trash2 } from 'lucide-react';
