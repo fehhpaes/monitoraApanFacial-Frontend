@@ -13,7 +13,7 @@ export interface FaceDetectionResult {
 }
 
 const FACE_SIZE_MIN = 0; // Mínimo 0% - sem limite inferior de tamanho
-const FACE_SIZE_MAX = 0.70; // Máximo 70% da tela (reduzido para melhor crop 3x4)
+const FACE_SIZE_MAX = 0.85; // Máximo 85% da tela
 const CENTER_TOLERANCE = 0.15; // ±15% de tolerância para centro
 
 let modelsLoaded = false;
@@ -180,7 +180,7 @@ export const cropFaceTo3x4 = (
   const targetRatio = 4 / 3; // altura/largura
 
   // Calcular dimensões do crop
-  let cropWidth = box.width * 1.2; // 20% de margem
+  let cropWidth = box.width * 1.5; // 50% de margem ao redor do rosto
   let cropHeight = cropWidth * targetRatio;
 
   // Se a altura exceder o tamanho do rosto, ajustar
