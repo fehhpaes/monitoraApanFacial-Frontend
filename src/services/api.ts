@@ -3,7 +3,7 @@ import { Aluno, CreateAlunoPayload, UpdateAlunoPayload, FotoUploadResponse } fro
 
 const api: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
-  timeout: 10000,
+  timeout: 30000,  // Aumentado para 30 segundos para Render cold start
 });
 
 // Adicionar interceptor para tratamento de erros
