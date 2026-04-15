@@ -12,7 +12,7 @@ export interface FaceDetectionResult {
   }>;
 }
 
-const FACE_SIZE_MIN = 0.10; // Mínimo 10% da tela (aumentado para permitir maior distância)
+const FACE_SIZE_MIN = 0.05; // Mínimo 5% da tela (bem menor - permite maior distância)
 const FACE_SIZE_MAX = 0.85; // Máximo 85% da tela
 const CENTER_TOLERANCE = 0.15; // ±15% de tolerância para centro
 
