@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Aluno } from '../types/index';
+import { Aluno, Curso } from '../types/index';
 import CardAluno from './CardAluno';
 import ModalEditar from './ModalEditar';
 import { alunosAPI } from '../services/api';
@@ -8,7 +8,7 @@ import { Trash2, AlertCircle } from 'lucide-react';
 
 interface GaleriaAlunosProps {
   alunos: Aluno[];
-  cursos: string[];
+  cursos: Curso[];
   onAlunoDeleted: () => void;
 }
 

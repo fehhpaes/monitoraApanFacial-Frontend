@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { X, Upload } from 'lucide-react';
-import { Aluno, UpdateAlunoPayload } from '../types/index';
+import { Aluno, UpdateAlunoPayload, Curso } from '../types/index';
 import CameraCapture from './CameraCapture';
 import { alunosAPI } from '../services/api';
 import { toast } from 'react-toastify';
 
 interface ModalEditarProps {
   aluno: Aluno;
-  cursos: string[];
+  cursos: Curso[];
   onClose: () => void;
   onSuccess: () => void;
 }
@@ -146,8 +146,8 @@ export default function ModalEditar({ aluno, cursos, onClose, onSuccess }: Modal
               }`}
             >
               {cursos.map((curso) => (
-                <option key={curso} value={curso}>
-                  {curso}
+                <option key={curso.nome} value={curso.nome}>
+                  {curso.nome}
                 </option>
               ))}
             </select>
