@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { QRCodeSVG as QRCode } from 'qrcode.react';
 import { alunosAPI } from '../services/api';
 import { Aluno } from '../types/index';
 import { ArrowLeft } from 'lucide-react';
@@ -138,13 +137,21 @@ export function ImpressaoQR({ onBack }: ImpressaoQRProps) {
   };
 
   const downloadQRCode = (aluno: Aluno) => {
-    const canvas = document.getElementById(`qr-${aluno._id}`) as HTMLCanvasElement;
-    if (canvas) {
-      const link = document.createElement('a');
-      link.href = canvas.toDataURL('image/png');
-      link.download = `QR-${aluno.nome}.png`;
-      link.click();
+    if (!aluno.qrCodeUrl) {
+      alert('QR Code não disponível para download');
+      return;
     }
+
+    // Criar um link temporário para download
+    const link = document.createElement('a');
+    link.href = aluno.qrCodeUrl;
+    link.download = `QR-${aluno.nome}.png`;
+    link.target = '_blank';
+    
+    // Adicionar ao DOM, clicar e remover
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const downloadTodosPDF = async () => {
@@ -261,24 +268,6 @@ export function ImpressaoQR({ onBack }: ImpressaoQRProps) {
                     <p className="text-gray-400 text-sm">QR indisponível</p>
                   </div>
                 )}
-
-                {/* QR Code Hidden para Impressão */}
-                <div style={{ display: 'none' }}>
-                  <QRCode
-                    id={`qr-${aluno._id}`}
-                    value={JSON.stringify({
-                      _id: aluno._id,
-                      nome: aluno.nome,
-                      curso: aluno.curso,
-                      fotoUrl: aluno.fotoUrl,
-                      emailResponsavel: aluno.emailResponsavel,
-                      geradoEm: new Date().toISOString(),
-                    })}
-                    size={256}
-                    level="H"
-                    includeMargin={true}
-                  />
-                </div>
 
                 {/* Informações */}
                 <h3 className="font-bold text-gray-800 mb-1 truncate">{aluno.nome}</h3>
