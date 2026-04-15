@@ -194,7 +194,8 @@ export const cropFaceTo3x4 = (
   const faceCenterY = box.y + box.height / 2;
 
   let cropX = faceCenterX - cropWidth / 2;
-  let cropY = faceCenterY - cropHeight / 2;
+  // Para foto 3x4, coloca o rosto mais para baixo (30% do espaço superior livre)
+  let cropY = faceCenterY - cropHeight * 0.35;
 
   // Garantir que o crop não saia dos limites do canvas
   if (cropX < 0) cropX = 0;
