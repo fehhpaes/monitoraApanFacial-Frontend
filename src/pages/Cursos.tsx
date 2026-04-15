@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import FormCurso from '../components/FormCurso';
 import ModalCurso from '../components/ModalCurso';
 import { cursosAPI } from '../services/api';
+import { Curso } from '../types/index';
 import { toast } from 'react-toastify';
 import { Loader, Plus, ArrowLeft, Trash2 } from 'lucide-react';
 
@@ -10,7 +11,7 @@ interface CursosPageProps {
 }
 
 export default function CursosPage({ onBack }: CursosPageProps) {
-  const [cursos, setCursos] = useState<any[]>([]);
+  const [cursos, setCursos] = useState<Curso[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [showModalCurso, setShowModalCurso] = useState(false);
 

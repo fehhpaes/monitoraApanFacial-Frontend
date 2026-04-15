@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import { Aluno, CreateAlunoPayload, UpdateAlunoPayload, FotoUploadResponse } from '../types/index';
+import { Aluno, CreateAlunoPayload, UpdateAlunoPayload, FotoUploadResponse, Curso } from '../types/index';
 
 const api: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -56,13 +56,9 @@ export const alunosAPI = {
 
 export const cursosAPI = {
   // Listar todos os cursos
-  getAll: async (): Promise<Array<{ nome: string; sigla?: string; tipo?: string }>> => {
-    const response = await api.get<{ data: Array<{ _id?: string; nome: string; sigla?: string; tipo?: string }> }>('/cursos');
-    return response.data.data.map((curso) => ({
-      nome: curso.nome,
-      sigla: curso.sigla || '',
-      tipo: curso.tipo || 'modular',
-    }));
+  getAll: async (): Promise<Curso[]> => {
+    const response = await api.get<{ data: Curso[] }>('/cursos');
+    return response.data.data;
   },
 
   // Criar novo curso (admin)
