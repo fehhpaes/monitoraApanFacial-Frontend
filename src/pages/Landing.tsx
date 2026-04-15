@@ -1,7 +1,7 @@
-import { Users, BookOpen, ArrowRight, QrCode, Printer } from 'lucide-react';
+import { Users, BookOpen, ArrowRight, Camera, FileText, Printer } from 'lucide-react';
 
 interface LandingProps {
-  onNavigate: (page: 'alunos' | 'cursos' | 'presenca-qr' | 'impressao-qr') => void;
+  onNavigate: (page: 'alunos' | 'cursos' | 'presenca-qr-scanner' | 'presenca-qr-relatorio' | 'impressao-qr') => void;
 }
 
 export default function Landing({ onNavigate }: LandingProps) {
@@ -23,7 +23,7 @@ export default function Landing({ onNavigate }: LandingProps) {
         </div>
 
         {/* Cards de Navegação */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           {/* Card - Cadastro de Alunos */}
           <div
             onClick={() => onNavigate('alunos')}
@@ -86,31 +86,62 @@ export default function Landing({ onNavigate }: LandingProps) {
             </div>
           </div>
 
-          {/* Card - Controle de Presença */}
+          {/* Card - Registrar Presença (Scanner) */}
           <div
-            onClick={() => onNavigate('presenca-qr')}
-            className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-8 border-2 border-transparent hover:border-purple-500"
+            onClick={() => onNavigate('presenca-qr-scanner')}
+            className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-8 border-2 border-transparent hover:border-red-500"
           >
             <div className="flex flex-col items-center text-center h-full justify-between">
               {/* Icon */}
               <div className="mb-6">
-                <div className="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <QrCode className="text-purple-600" size={40} />
+                <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Camera className="text-red-600" size={40} />
                 </div>
               </div>
 
               {/* Conteúdo */}
               <div className="flex-1 flex flex-col items-center justify-center">
                 <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                  Controle de Presença
+                  Registrar Presença
                 </h2>
                 <p className="text-gray-600 mb-6">
-                  Escaneie QR Codes para registrar entrada e saída de alunos
+                  Escaneie QR Codes para registrar entrada e saída
                 </p>
               </div>
 
               {/* Botão */}
-              <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 mt-6">
+              <button className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 mt-6">
+                Acessar
+                <ArrowRight size={20} />
+              </button>
+            </div>
+          </div>
+
+          {/* Card - Relatório de Presença */}
+          <div
+            onClick={() => onNavigate('presenca-qr-relatorio')}
+            className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-8 border-2 border-transparent hover:border-indigo-500"
+          >
+            <div className="flex flex-col items-center text-center h-full justify-between">
+              {/* Icon */}
+              <div className="mb-6">
+                <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <FileText className="text-indigo-600" size={40} />
+                </div>
+              </div>
+
+              {/* Conteúdo */}
+              <div className="flex-1 flex flex-col items-center justify-center">
+                <h2 className="text-2xl font-bold text-gray-800 mb-3">
+                  Relatório de Presença
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Consulte e imprima relatórios de presença
+                </p>
+              </div>
+
+              {/* Botão */}
+              <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2 mt-6">
                 Acessar
                 <ArrowRight size={20} />
               </button>
