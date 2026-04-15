@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import FormCadastro from '../components/FormCadastro';
 import GaleriaAlunos from '../components/GaleriaAlunos';
 import ModalCurso from '../components/ModalCurso';
-import { Aluno } from '../types/index';
+import { Aluno, Curso } from '../types/index';
 import { alunosAPI, cursosAPI } from '../services/api';
 import { toast } from 'react-toastify';
 import { Loader, Plus, ArrowLeft } from 'lucide-react';
@@ -13,7 +13,7 @@ interface AlunosPageProps {
 
 export default function AlunosPage({ onBack }: AlunosPageProps) {
   const [alunos, setAlunos] = useState<Aluno[]>([]);
-  const [cursos, setCursos] = useState<string[]>([]);
+  const [cursos, setCursos] = useState<Curso[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [showModalCurso, setShowModalCurso] = useState(false);
 

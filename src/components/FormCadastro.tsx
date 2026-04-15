@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Camera, Upload } from 'lucide-react';
 import { alunosAPI } from '../services/api';
-import { CreateAlunoPayload } from '../types/index';
+import { CreateAlunoPayload, Curso } from '../types/index';
 import CameraCapture from './CameraCapture';
 import { toast } from 'react-toastify';
 
 interface FormCadastroProps {
-  cursos: string[];
+  cursos: Curso[];
   onSuccess: () => void;
 }
 
@@ -148,8 +148,8 @@ export default function FormCadastro({ cursos, onSuccess }: FormCadastroProps) {
         >
           <option value="">Selecione um curso</option>
           {cursos.map((curso) => (
-            <option key={curso} value={curso}>
-              {curso}
+            <option key={curso.nome} value={curso.nome}>
+              {curso.nome}
             </option>
           ))}
         </select>
