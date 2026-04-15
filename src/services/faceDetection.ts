@@ -13,7 +13,7 @@ export interface FaceDetectionResult {
 }
 
 const FACE_SIZE_MIN = 0; // Mínimo 0% - sem limite inferior de tamanho
-const FACE_SIZE_MAX = 0.85; // Máximo 85% da tela
+const FACE_SIZE_MAX = 0.70; // Máximo 70% da tela (reduzido para melhor crop 3x4)
 const CENTER_TOLERANCE = 0.15; // ±15% de tolerância para centro
 
 let modelsLoaded = false;
