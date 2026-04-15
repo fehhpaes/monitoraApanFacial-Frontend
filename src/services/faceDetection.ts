@@ -184,8 +184,8 @@ export const cropFaceTo3x4 = (
   let cropHeight = cropWidth * targetRatio;
 
   // Se a altura exceder o tamanho do rosto, ajustar
-  if (cropHeight > box.height * 1.5) {
-    cropHeight = box.height * 1.5;
+  if (cropHeight > box.height * 2.0) {
+    cropHeight = box.height * 2.0;
     cropWidth = cropHeight / targetRatio;
   }
 
