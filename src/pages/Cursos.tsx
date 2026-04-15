@@ -21,10 +21,8 @@ export default function CursosPage({ onBack }: CursosPageProps) {
   const carregarCursos = async () => {
     try {
       setCarregando(true);
-      // Nota: cursosAPI.getAll() retorna apenas nomes
-      // Idealmente, criamos um novo endpoint que retorna cursos completos
       const cursosDoBackend = await cursosAPI.getAll();
-      setCursos(cursosDoBackend.map((nome) => ({ nome, sigla: '', tipo: 'modular' })));
+      setCursos(cursosDoBackend);
     } catch (error) {
       console.error('Erro ao carregar cursos:', error);
       toast.error('Erro ao carregar cursos');

@@ -56,9 +56,13 @@ export const alunosAPI = {
 
 export const cursosAPI = {
   // Listar todos os cursos
-  getAll: async (): Promise<string[]> => {
-    const response = await api.get<{ data: Array<{ _id: string; nome: string }> }>('/cursos');
-    return response.data.data.map((curso) => curso.nome);
+  getAll: async (): Promise<Array<{ nome: string; sigla?: string; tipo?: string }>> => {
+    const response = await api.get<{ data: Array<{ _id?: string; nome: string; sigla?: string; tipo?: string }> }>('/cursos');
+    return response.data.data.map((curso) => ({
+      nome: curso.nome,
+      sigla: curso.sigla || '',
+      tipo: curso.tipo || 'modular',
+    }));
   },
 
   // Criar novo curso (admin)
