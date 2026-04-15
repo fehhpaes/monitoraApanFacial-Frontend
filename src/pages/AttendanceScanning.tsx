@@ -2,13 +2,14 @@ import { useState, useRef, useEffect } from 'react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { presencaAPI, alunosAPI } from '../services/api';
 import { Presenca } from '../types/index';
-import { ArrowLeft, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Check, X } from 'lucide-react';
+import { toast } from 'react-toastify';
 
-interface ScanResult {
-  status: 'success' | 'error';
-  message: string;
-  presenca?: Presenca;
-  alreadyRegistered?: boolean;
+interface ConfirmationData {
+  nome: string;
+  curso: string;
+  status: 'presente' | 'saida';
+  qrData: string;
 }
 
 interface AttendanceScanningProps {
@@ -17,10 +18,12 @@ interface AttendanceScanningProps {
 
 export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
   const [presencas, setPresencas] = useState<Presenca[]>([]);
-  const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [cursoFiltro, setCursoFiltro] = useState<string>('');
   const [cursos, setCursos] = useState<string[]>([]);
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+  const [confirmationData, setConfirmationData] = useState<ConfirmationData | null>(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -70,32 +73,25 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
         await scannerRef.current.pause();
       }
 
-      // Enviar para o backend
+      // Buscar dados do aluno no backend (o backend retorna os dados já parsados do QR)
       const result = await presencaAPI.registrar({
         qrData: decodedText,
       });
 
-      setScanResult({
-        status: 'success',
-        message: 'Presença registrada com sucesso!',
-        presenca: result,
+      // Mostrar modal com dados para confirmação
+      setConfirmationData({
+        nome: result.nome,
+        curso: result.curso,
+        status: result.status === 'presente' ? 'presente' : 'saida',
+        qrData: decodedText,
       });
-
-      // Recarregar presenças
-      setTimeout(() => {
-        carregarPresencas();
-        resumirScanner();
-        setScanResult(null);
-      }, 2000);
+      setShowConfirmationModal(true);
     } catch (error) {
-      setScanResult({
-        status: 'error',
-        message: error instanceof Error ? error.message : 'Erro ao registrar presença',
-      });
-
-      setTimeout(() => {
-        resumirScanner();
-      }, 2000);
+      toast.error(
+        error instanceof Error ? error.message : 'Erro ao ler QR code',
+        { position: 'bottom-right' }
+      );
+      resumirScanner();
     } finally {
       setLoading(false);
     }
@@ -116,6 +112,46 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
         console.error('Erro ao resumir scanner:', error);
       }
     }
+  };
+
+  const handleConfirmPresenca = async () => {
+    if (!confirmationData) return;
+
+    try {
+      setConfirmLoading(true);
+
+      // Registrar presença de fato
+      await presencaAPI.registrar({
+        qrData: confirmationData.qrData,
+      });
+
+      toast.success('Presença registrada com sucesso!', {
+        position: 'bottom-right',
+      });
+
+      // Fechar modal
+      setShowConfirmationModal(false);
+      setConfirmationData(null);
+
+      // Recarregar presenças
+      await carregarPresencas();
+
+      // Reiniciar scanner automaticamente
+      await resumirScanner();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : 'Erro ao registrar presença',
+        { position: 'bottom-right' }
+      );
+    } finally {
+      setConfirmLoading(false);
+    }
+  };
+
+  const handleCancelPresenca = async () => {
+    setShowConfirmationModal(false);
+    setConfirmationData(null);
+    await resumirScanner();
   };
 
   const carregarPresencas = async () => {
@@ -178,22 +214,6 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
             <div ref={containerRef}>
               <div id="qr-scanner-container" className="rounded-lg overflow-hidden border border-gray-300" />
             </div>
-
-            {scanResult && (
-              <div
-                className={`mt-4 p-4 rounded-lg text-white ${
-                  scanResult.status === 'success' ? 'bg-green-500' : 'bg-red-500'
-                }`}
-              >
-                <p className="font-semibold">{scanResult.message}</p>
-                {scanResult.presenca && (
-                  <div className="mt-2 text-sm">
-                    <p>Aluno: {scanResult.presenca.nome}</p>
-                    <p>Status: {scanResult.presenca.status === 'presente' ? 'Entrada' : 'Saída'}</p>
-                  </div>
-                )}
-              </div>
-            )}
 
             {loading && (
               <div className="mt-4 text-center text-gray-600">
@@ -279,6 +299,82 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
             </div>
           </div>
         </div>
+
+        {/* Modal de Confirmação */}
+        {showConfirmationModal && confirmationData && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+                Confirmar Presença
+              </h2>
+
+              {/* Dados do Aluno */}
+              <div className="space-y-4 mb-8">
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <label className="text-sm font-medium text-gray-600 block mb-1">
+                    Nome do Aluno
+                  </label>
+                  <p className="text-lg font-semibold text-gray-800">
+                    {confirmationData.nome}
+                  </p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <label className="text-sm font-medium text-gray-600 block mb-1">
+                    Curso
+                  </label>
+                  <p className="text-lg font-semibold text-gray-800">
+                    {confirmationData.curso}
+                  </p>
+                </div>
+
+                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                  <label className="text-sm font-medium text-gray-600 block mb-1">
+                    Status
+                  </label>
+                  <p
+                    className={`text-lg font-semibold ${
+                      confirmationData.status === 'presente'
+                        ? 'text-green-600'
+                        : 'text-blue-600'
+                    }`}
+                  >
+                    {confirmationData.status === 'presente' ? 'Entrada' : 'Saída'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Botões */}
+              <div className="flex gap-3">
+                <button
+                  onClick={handleCancelPresenca}
+                  disabled={confirmLoading}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold rounded-lg transition disabled:opacity-50"
+                >
+                  <X size={20} />
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleConfirmPresenca}
+                  disabled={confirmLoading}
+                  className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition disabled:opacity-50"
+                >
+                  {confirmLoading ? (
+                    <>
+                      <span className="animate-spin">⏳</span>
+                      Processando...
+                    </>
+                  ) : (
+                    <>
+                      <Check size={20} />
+                      Confirmar
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
