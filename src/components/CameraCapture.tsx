@@ -231,18 +231,12 @@ export default function CameraCapture({ onCapture, onClose }: CameraCaptureProps
                     </span>
                     <span>Rosto centralizado</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className={faceDetectionResult.noGlasses ? '✓ text-green-600' : '✗ text-red-600'}>
-                      {faceDetectionResult.noGlasses ? '✓' : '✗'}
-                    </span>
-                    <span>Sem óculos</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={faceDetectionResult.bothEyesOpen ? '✓ text-green-600' : '✗ text-red-600'}>
-                      {faceDetectionResult.bothEyesOpen ? '✓' : '✗'}
-                    </span>
-                    <span>Olhos abertos</span>
-                  </div>
+                   <div className="flex items-center gap-2">
+                     <span className={faceDetectionResult.noGlasses ? '✓ text-green-600' : '✗ text-red-600'}>
+                       {faceDetectionResult.noGlasses ? '✓' : '✗'}
+                     </span>
+                     <span>Sem óculos</span>
+                   </div>
                 </div>
               </div>
             )}

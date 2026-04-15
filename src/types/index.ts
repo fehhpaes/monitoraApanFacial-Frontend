@@ -46,7 +46,6 @@ export interface CreateCursoPayload {
 export interface FaceDetectionResult {
   hasFace: boolean;
   isCentered: boolean;
-  bothEyesOpen: boolean;
   noGlasses: boolean;
   faceFullyVisible: boolean;
   isValid: boolean;

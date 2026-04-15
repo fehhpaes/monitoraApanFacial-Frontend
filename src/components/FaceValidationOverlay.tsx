@@ -186,24 +186,16 @@ function drawStatusIndicator(
 
   // Background semi-transparente
   ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
-  ctx.fillRect(x, y, 220, itemHeight * 4 + 10);
+  ctx.fillRect(x, y, 220, itemHeight * 3 + 10);
 
   ctx.font = '12px monospace';
   ctx.fillStyle = 'white';
-
-  const status = (text: string, valid: boolean) => {
-    const icon = valid ? '✓' : '✗';
-    const color = valid ? '#22C55E' : '#EF4444';
-    ctx.fillStyle = color;
-    ctx.fillText(`${icon} ${text}`, x + 10, y + itemHeight);
-  };
 
   ctx.fillStyle = 'rgba(150, 150, 150, 0.9)';
   ctx.fillText('Validações:', x + 10, y + itemHeight - 10);
 
   y = y + itemHeight;
-  status('Rosto visível', faceDetectionResult.faceFullyVisible);
-  ctx.fillStyle = 'white';
+  ctx.fillStyle = faceDetectionResult.faceFullyVisible ? '#22C55E' : '#EF4444';
   ctx.fillText(
     `${faceDetectionResult.faceFullyVisible ? '✓' : '✗'} Rosto visível`,
     x + 10,
@@ -222,12 +214,5 @@ function drawStatusIndicator(
     `${faceDetectionResult.noGlasses ? '✓' : '✗'} Sem óculos`,
     x + 10,
     y + itemHeight * 3
-  );
-
-  ctx.fillStyle = faceDetectionResult.bothEyesOpen ? '#22C55E' : '#EF4444';
-  ctx.fillText(
-    `${faceDetectionResult.bothEyesOpen ? '✓' : '✗'} Olhos abertos`,
-    x + 10,
-    y + itemHeight * 4
   );
 }

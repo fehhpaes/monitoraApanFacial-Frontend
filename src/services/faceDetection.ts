@@ -3,7 +3,6 @@ import * as faceapi from 'face-api.js';
 export interface FaceDetectionResult {
   hasFace: boolean;
   isCentered: boolean;
-  bothEyesOpen: boolean;
   noGlasses: boolean;
   faceFullyVisible: boolean;
   isValid: boolean;
@@ -42,7 +41,6 @@ export const detectAndValidateFace = async (
     return {
       hasFace: false,
       isCentered: false,
-      bothEyesOpen: false,
       noGlasses: false,
       faceFullyVisible: false,
       isValid: false,
@@ -60,7 +58,6 @@ export const detectAndValidateFace = async (
       return {
         hasFace: false,
         isCentered: false,
-        bothEyesOpen: false,
         noGlasses: false,
         faceFullyVisible: false,
         isValid: false,
@@ -101,16 +98,12 @@ export const detectAndValidateFace = async (
     // Validar se há óculos (detectar reflexos nas regiões dos olhos)
     const hasGlasses = checkForGlasses(landmarks);
 
-    // Validar se os dois olhos estão abertos
-    const eyesOpen = checkIfEyesAreOpen(landmarks);
-
     // Compilar resultado
     const isValid =
       isFaceFullyVisible &&
       isCentered &&
       isGoodDistance &&
-      !hasGlasses &&
-      eyesOpen;
+      !hasGlasses;
 
     let message = '';
     if (!isFaceFullyVisible) {
@@ -121,8 +114,6 @@ export const detectAndValidateFace = async (
       message = 'Distância inadequada. Aproxime-se mais da câmera.';
     } else if (hasGlasses) {
       message = 'Remova os óculos para melhor qualidade da foto.';
-    } else if (!eyesOpen) {
-      message = 'Abra os olhos completamente.';
     } else {
       message = '✓ Rosto validado com sucesso!';
     }
@@ -130,7 +121,6 @@ export const detectAndValidateFace = async (
     return {
       hasFace: true,
       isCentered,
-      bothEyesOpen: eyesOpen,
       noGlasses: !hasGlasses,
       faceFullyVisible: isFaceFullyVisible,
       isValid,
@@ -142,7 +132,6 @@ export const detectAndValidateFace = async (
     return {
       hasFace: false,
       isCentered: false,
-      bothEyesOpen: false,
       noGlasses: false,
       faceFullyVisible: false,
       isValid: false,
@@ -176,39 +165,6 @@ function checkForGlasses(landmarks: faceapi.WithFaceLandmarks<any>): boolean {
   const hasGlassesPattern = leftEyeHeightVariance < 5 || rightEyeHeightVariance < 5;
 
   return hasGlassesPattern;
-}
-
-function checkIfEyesAreOpen(landmarks: faceapi.WithFaceLandmarks<any>): boolean {
-  if (!landmarks || !landmarks.landmarks) {
-    return false;
-  }
-
-  const points = (landmarks.landmarks.getPoints() as any[]);
-
-  // Pontos dos olhos
-  const leftEyePoints = points.slice(36, 42);
-  const rightEyePoints = points.slice(42, 48);
-
-  // Calcular razão de abertura dos olhos (altura / largura)
-  const leftEyeAperture = calculateEyeAperture(leftEyePoints);
-  const rightEyeAperture = calculateEyeAperture(rightEyePoints);
-
-  // Threshold de abertura (ajustável)
-  const OPEN_EYE_THRESHOLD = 0.15;
-
-  return leftEyeAperture > OPEN_EYE_THRESHOLD && rightEyeAperture > OPEN_EYE_THRESHOLD;
-}
-
-function calculateEyeAperture(eyePoints: any[]): number {
-  if (eyePoints.length < 6) return 0;
-
-  // Altura do olho (diferença entre ponto superior e inferior)
-  const height = Math.abs(eyePoints[1].y - eyePoints[4].y);
-
-  // Largura do olho
-  const width = Math.abs(eyePoints[0].x - eyePoints[3].x);
-
-  return width > 0 ? height / width : 0;
 }
 
 export const cropFaceTo3x4 = (
