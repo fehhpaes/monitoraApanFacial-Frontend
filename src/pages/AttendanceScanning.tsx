@@ -137,12 +137,16 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
   };
 
   const resumirScanner = async () => {
-    if (scannerRef.current && !scannerAtivo) {
+    if (scannerRef.current) {
       try {
+        // Pequeno delay para garantir que a câmera está pronta
+        await new Promise(resolve => setTimeout(resolve, 300));
         await scannerRef.current.resume();
         setScannerAtivo(true);
+        console.log('Scanner retomado');
       } catch (error) {
         console.error('Erro ao resumir scanner:', error);
+        // Se não conseguir resumir, reiniciar
         await inicializarScanner();
       }
     }
