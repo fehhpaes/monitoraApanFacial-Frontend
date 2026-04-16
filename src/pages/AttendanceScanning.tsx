@@ -471,7 +471,7 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
                     <img
                       src={confirmationData.fotoUrl}
                       alt={confirmationData.nome}
-                      className="w-24 h-24 rounded-full object-cover border-4 border-blue-500"
+                      className="w-32 h-32 rounded-full object-cover border-4 border-blue-500"
                     />
                   </div>
                 )}
