@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { presencaAPI, alunosAPI } from '../services/api';
 import { Presenca } from '../types/index';
-import { ArrowLeft, ExternalLink, Check, X, Camera, CameraOff } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Check, X, Camera, CameraOff, Settings } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 interface ConfirmationData {
@@ -28,8 +28,17 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
   const [scannerAtivo, setScannerAtivo] = useState(false);
   const [scannerError, setScannerError] = useState<string | null>(null);
   const [isProcessingScan, setIsProcessingScan] = useState(false);
+  
+  // Configurações
+  const [camerasDisponiveis, setCamerasDisponiveis] = useState<{id: string; label: string}[]>([]);
+  const [cameraSelecionada, setCameraSelecionada] = useState<string>('');
+  const [tempoModal, setTempoModal] = useState<number>(5);
+  const [mostrarConfiguracoes, setMostrarConfiguracoes] = useState(false);
+  const [contagemRegressiva, setContagemRegressiva] = useState<number | null>(null);
+  
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const videoContainerRef = useRef<HTMLDivElement | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Carregar presenças do dia ao montar o componente
   useEffect(() => {
@@ -46,7 +55,41 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
           scannerRef.current = null;
         });
       }
+      // Limpar timer de contagem regressiva
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     };
+  }, []);
+
+  // Carregar configurações ao montar
+  useEffect(() => {
+    const carregarConfiguracoes = async () => {
+      try {
+        const cameras = await Html5Qrcode.getCameras();
+        if (cameras && cameras.length > 0) {
+          setCamerasDisponiveis(cameras.map(c => ({ id: c.id, label: c.label })));
+          
+          // Selecionar câmera salva ou primeira disponível
+          const cameraSalva = localStorage.getItem('cameraSelecionada');
+          if (cameraSalva && cameras.some(c => c.id === cameraSalva)) {
+            setCameraSelecionada(cameraSalva);
+          } else {
+            setCameraSelecionada(cameras[0].id);
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar câmeras:', error);
+      }
+    };
+    
+    const tempoSalvo = localStorage.getItem('tempoModal');
+    if (tempoSalvo) {
+      setTempoModal(Number(tempoSalvo));
+    }
+    
+    carregarConfiguracoes();
   }, []);
 
   // Atualizar presenças quando o filtro de curso mudar
@@ -73,8 +116,11 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
         },
       };
 
+      // Usar câmera selecionada ou fallback para environment
+      const deviceId = cameraSelecionada || { facingMode: 'environment' };
+      
       await scanner.start(
-        { facingMode: 'environment' },
+        deviceId,
         config,
         onScanSuccess,
         onScanError
@@ -119,6 +165,9 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
         qrData: decodedText,
       });
       setShowConfirmationModal(true);
+      
+      // Iniciar contagem regressiva
+      iniciarContagemRegressiva();
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : 'Erro ao ler QR code',
@@ -171,6 +220,63 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
     }
   };
 
+  // Funções de contagem regressiva do modal
+  const iniciarContagemRegressiva = () => {
+    setContagemRegressiva(tempoModal);
+    
+    timerRef.current = setInterval(() => {
+      setContagemRegressiva((prev) => {
+        if (prev === null || prev <= 1) {
+          // Tempo esgotado - fechar modal
+          limparContagemRegressiva();
+          fecharModalERetomarScanner();
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const limparContagemRegressiva = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setContagemRegressiva(null);
+  };
+
+  const fecharModalERetomarScanner = async () => {
+    setShowConfirmationModal(false);
+    setConfirmationData(null);
+    setIsProcessingScan(false);
+    await carregarPresencas();
+    await resumirScanner();
+  };
+
+  // Função para reiniciar scanner com nova câmera
+  const alterarCamera = async (novaCameraId: string) => {
+    setCameraSelecionada(novaCameraId);
+    localStorage.setItem('cameraSelecionada', novaCameraId);
+    
+    // Parar scanner atual
+    if (scannerRef.current) {
+      try {
+        await scannerRef.current.stop();
+      } catch (error) {
+        console.error('Erro ao parar scanner:', error);
+      }
+      scannerRef.current = null;
+    }
+    
+    // Reiniciar com nova câmera
+    await inicializarScanner();
+  };
+
+  const salvarTempoModal = (novoTempo: number) => {
+    setTempoModal(novoTempo);
+    localStorage.setItem('tempoModal', String(novoTempo));
+  };
+
   const handleConfirmPresenca = async () => {
     if (!confirmationData) return;
 
@@ -192,6 +298,9 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
       setShowConfirmationModal(false);
       setConfirmationData(null);
       setIsProcessingScan(false);
+      
+      // Limpar contagem regressiva
+      limparContagemRegressiva();
 
       // Recarregar presenças
       await carregarPresencas();
@@ -212,6 +321,7 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
     setShowConfirmationModal(false);
     setConfirmationData(null);
     setIsProcessingScan(false);
+    limparContagemRegressiva();
     await resumirScanner();
   };
 
@@ -277,16 +387,75 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
         {/* Header com botão voltar */}
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-gray-800">Registrar Presença</h1>
-          {onBack && (
+          <div className="flex items-center gap-2">
             <button
-              onClick={onBack}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition"
+              onClick={() => setMostrarConfiguracoes(!mostrarConfiguracoes)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                mostrarConfiguracoes 
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                  : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+              }`}
+              title="Configurações"
             >
-              <ArrowLeft size={20} />
-              Voltar
+              <Settings size={20} />
+              Configurações
             </button>
-          )}
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition"
+              >
+                <ArrowLeft size={20} />
+                Voltar
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* Painel de Configurações */}
+        {mostrarConfiguracoes && (
+          <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Configurações</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Seletor de Câmera */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Câmera:
+                </label>
+                <select
+                  value={cameraSelecionada}
+                  onChange={(e) => alterarCamera(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  {camerasDisponiveis.length === 0 ? (
+                    <option value="">Nenhuma câmera encontrada</option>
+                  ) : (
+                    camerasDisponiveis.map((camera) => (
+                      <option key={camera.id} value={camera.id}>
+                        {camera.label}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+
+              {/* Tempo do Modal */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tempo do modal (segundos):
+                </label>
+                <input
+                  type="number"
+                  value={tempoModal}
+                  onChange={(e) => salvarTempoModal(Number(e.target.value))}
+                  min={1}
+                  max={30}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Scanner */}
@@ -422,15 +591,24 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
                     className="border border-gray-200 rounded-lg p-3 hover:bg-gray-50 transition-colors bg-gray-50"
                   >
                     <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-800 text-sm truncate">{presenca.nome}</p>
-                        <p className="text-xs text-gray-600 truncate">{presenca.curso}</p>
-                        <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
-                          {presenca.dataEntrada && (
-                            <span>
-                              {formatarHora(presenca.dataEntrada)}
-                            </span>
-                          )}
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        {presenca.fotoUrl && (
+                          <img
+                            src={presenca.fotoUrl}
+                            alt={presenca.nome}
+                            className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-gray-800 text-sm truncate">{presenca.nome}</p>
+                          <p className="text-xs text-gray-600 truncate">{presenca.curso}</p>
+                          <div className="flex items-center gap-2 mt-1 text-xs text-gray-500">
+                            {presenca.dataEntrada && (
+                              <span>
+                                {formatarHora(presenca.dataEntrada)}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="text-right ml-2 flex-shrink-0">
@@ -507,6 +685,15 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
                     {confirmationData.status === 'presente' ? 'Entrada' : 'Saída'}
                   </p>
                 </div>
+
+                {/* Contagem Regressiva */}
+                {contagemRegressiva !== null && (
+                  <div className="text-center">
+                    <p className="text-sm text-orange-600 font-semibold">
+                      Esta janela fechará em {contagemRegressiva}s
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Botões */}
