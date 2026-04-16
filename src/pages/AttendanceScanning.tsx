@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 interface ConfirmationData {
   nome: string;
   curso: string;
+  fotoUrl?: string;
   status: 'presente' | 'saida';
   qrData: string;
 }
@@ -113,6 +114,7 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
       setConfirmationData({
         nome: result.nome,
         curso: result.curso,
+        fotoUrl: result.fotoUrl,
         status: result.status === 'presente' ? 'presente' : 'saida',
         qrData: decodedText,
       });
@@ -464,6 +466,15 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
 
               {/* Dados do Aluno */}
               <div className="space-y-4 mb-8">
+                {confirmationData.fotoUrl && (
+                  <div className="flex justify-center">
+                    <img
+                      src={confirmationData.fotoUrl}
+                      alt={confirmationData.nome}
+                      className="w-24 h-24 rounded-full object-cover border-4 border-blue-500"
+                    />
+                  </div>
+                )}
                 <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                   <label className="text-sm font-medium text-gray-600 block mb-1">
                     Nome do Aluno
