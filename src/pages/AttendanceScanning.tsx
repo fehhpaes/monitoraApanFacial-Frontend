@@ -26,6 +26,7 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [scannerAtivo, setScannerAtivo] = useState(false);
   const [scannerError, setScannerError] = useState<string | null>(null);
+  const [isProcessingScan, setIsProcessingScan] = useState(false);
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const videoContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -91,6 +92,10 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
   };
 
   const onScanSuccess = async (decodedText: string) => {
+    // Prevenir múltiplas detecções enquantoprocessa
+    if (isProcessingScan) return;
+    setIsProcessingScan(true);
+
     try {
       setLoading(true);
       
@@ -120,6 +125,7 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
       resumirScanner();
     } finally {
       setLoading(false);
+      // Manter isProcessingScan=true até confirmar ou cancelar
     }
   };
 
@@ -181,6 +187,7 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
       // Fechar modal
       setShowConfirmationModal(false);
       setConfirmationData(null);
+      setIsProcessingScan(false);
 
       // Recarregar presenças
       await carregarPresencas();
@@ -200,6 +207,7 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
   const handleCancelPresenca = async () => {
     setShowConfirmationModal(false);
     setConfirmationData(null);
+    setIsProcessingScan(false);
     await resumirScanner();
   };
 
