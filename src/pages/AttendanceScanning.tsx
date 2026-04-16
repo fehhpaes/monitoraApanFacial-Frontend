@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { Html5Qrcode } from 'html5-qrcode';
 import { presencaAPI, alunosAPI } from '../services/api';
 import { Presenca } from '../types/index';
-import { ArrowLeft, ExternalLink, Check, X } from 'lucide-react';
+import { ArrowLeft, ExternalLink, Check, X, Camera, CameraOff } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 interface ConfirmationData {
@@ -24,8 +24,10 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
   const [showConfirmationModal, setShowConfirmationModal] = useState(false);
   const [confirmationData, setConfirmationData] = useState<ConfirmationData | null>(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const scannerRef = useRef<Html5QrcodeScanner | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [scannerAtivo, setScannerAtivo] = useState(false);
+  const [scannerError, setScannerError] = useState<string | null>(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
+  const videoContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Carregar presenças do dia ao montar o componente
   useEffect(() => {
@@ -36,8 +38,10 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
     return () => {
       // Limpar scanner ao desmontar
       if (scannerRef.current) {
-        scannerRef.current.clear().catch(() => {
-          // Scanner já foi limpo
+        scannerRef.current.stop().then(() => {
+          scannerRef.current = null;
+        }).catch(() => {
+          scannerRef.current = null;
         });
       }
     };
@@ -48,20 +52,42 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
     carregarPresencas();
   }, [cursoFiltro]);
 
-  const inicializarScanner = () => {
-    if (!containerRef.current) return;
+  const inicializarScanner = async () => {
+    if (!videoContainerRef.current || scannerRef.current) return;
 
-    const scanner = new Html5QrcodeScanner(
-      'qr-scanner-container',
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-      },
-      false
-    );
+    try {
+      setScannerError(null);
+      const scanner = new Html5Qrcode('qr-reader-video');
 
-    scanner.render(onScanSuccess, onScanError);
-    scannerRef.current = scanner;
+      const config = {
+        fps: 5,
+        qrbox: { width: 300, height: 300 },
+        aspectRatio: 1.0,
+        experimentalFeatures: {
+          useBarCodeDetectorIfSupported: true,
+          barCodeDetector: {
+            format: ['qr_code'],
+          },
+        },
+      };
+
+      await scanner.start(
+        { facingMode: 'environment' },
+        config,
+        onScanSuccess,
+        onScanError
+      );
+
+      scannerRef.current = scanner;
+      setScannerAtivo(true);
+      console.log('Scanner iniciado com sucesso');
+    } catch (error) {
+      console.error('Erro ao iniciar scanner:', error);
+      setScannerError(error instanceof Error ? error.message : 'Erro ao iniciar câmera');
+      toast.error('Erro ao iniciar câmera. Verifique as permissões.', {
+        position: 'bottom-right',
+      });
+    }
   };
 
   const onScanSuccess = async (decodedText: string) => {
@@ -98,18 +124,37 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
   };
 
   const onScanError = (error: string) => {
-    // Silenciar erros de scan contínuo
-    if (!error.includes('No QR code found')) {
-      console.error('Erro de scanner:', error);
+    // Silenciar erros de scan contínuo (esses são normais quando não detecta nada)
+    if (
+      error.includes('No MultiFormat Readers') ||
+      error.includes('NotFoundException') ||
+      error.includes('No QR code') ||
+      error.includes('Not found')
+    ) {
+      return;
     }
+    console.log('Scanner erro:', error);
   };
 
   const resumirScanner = async () => {
-    if (scannerRef.current) {
+    if (scannerRef.current && !scannerAtivo) {
       try {
         await scannerRef.current.resume();
+        setScannerAtivo(true);
       } catch (error) {
         console.error('Erro ao resumir scanner:', error);
+        await inicializarScanner();
+      }
+    }
+  };
+
+  const pararScanner = async () => {
+    if (scannerRef.current) {
+      try {
+        await scannerRef.current.stop();
+        setScannerAtivo(false);
+      } catch (error) {
+        console.error('Erro ao parar scanner:', error);
       }
     }
   };
@@ -209,10 +254,74 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Scanner */}
           <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Scanner QR Code</h2>
-            
-            <div ref={containerRef}>
-              <div id="qr-scanner-container" className="rounded-lg overflow-hidden border border-gray-300" />
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">Scanner QR Code</h2>
+              <button
+                onClick={() => scannerAtivo ? pararScanner() : inicializarScanner()}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition ${
+                  scannerAtivo
+                    ? 'bg-red-500 hover:bg-red-600 text-white'
+                    : 'bg-green-600 hover:bg-green-700 text-white'
+                }`}
+              >
+                {scannerAtivo ? (
+                  <>
+                    <CameraOff size={18} />
+                    Parar
+                  </>
+                ) : (
+                  <>
+                    <Camera size={18} />
+                    Iniciar
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Container do Video */}
+            <div
+              ref={videoContainerRef}
+              className="relative w-full aspect-square max-w-md mx-auto rounded-lg overflow-hidden border-2 border-gray-300 bg-gray-900"
+              style={{ minHeight: '300px' }}
+            >
+              {/* Video element que será criado pela biblioteca */}
+              <div id="qr-reader-video" className="w-full h-full" />
+
+              {/* Overlay quando não ativo */}
+              {!scannerAtivo && !scannerError && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-800 text-white">
+                  <Camera size={48} className="mb-4 opacity-50" />
+                  <p className="text-center px-4">
+                    Clique em "Iniciar" para ativar a câmera
+                  </p>
+                </div>
+              )}
+
+              {/* Overlay de erro */}
+              {scannerError && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-900 text-white">
+                  <CameraOff size={48} className="mb-4" />
+                  <p className="text-center px-4 text-sm">{scannerError}</p>
+                  <button
+                    onClick={inicializarScanner}
+                    className="mt-4 px-4 py-2 bg-white text-red-900 rounded-lg font-semibold"
+                  >
+                    Tentar novamente
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Status do Scanner */}
+            <div className="mt-4 flex items-center justify-center gap-2 text-sm">
+              <div
+                className={`w-2 h-2 rounded-full ${
+                  scannerAtivo ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
+                }`}
+              />
+              <span className="text-gray-600">
+                {scannerAtivo ? 'Scanner ativo - Aponte para o QR Code' : 'Scanner inativo'}
+              </span>
             </div>
 
             {loading && (
