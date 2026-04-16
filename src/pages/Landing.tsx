@@ -1,7 +1,7 @@
-import { Users, BookOpen, ArrowRight, Camera, FileText, Printer } from 'lucide-react';
+import { Users, BookOpen, ArrowRight, Camera, FileText, Printer, Briefcase, UserCog } from 'lucide-react';
 
 interface LandingProps {
-  onNavigate: (page: 'alunos' | 'cursos' | 'presenca-qr-scanner' | 'presenca-qr-relatorio' | 'impressao-qr') => void;
+  onNavigate: (page: 'alunos' | 'cursos' | 'funcionarios' | 'cargos' | 'presenca-qr-scanner' | 'presenca-qr-relatorio' | 'impressao-qr') => void;
 }
 
 export default function Landing({ onNavigate }: LandingProps) {
@@ -23,21 +23,18 @@ export default function Landing({ onNavigate }: LandingProps) {
         </div>
 
         {/* Cards de Navegação */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Card - Cadastro de Alunos */}
           <div
             onClick={() => onNavigate('alunos')}
             className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-4 border-2 border-transparent hover:border-blue-500 min-h-64 flex flex-col overflow-hidden"
           >
             <div className="flex flex-col items-center text-center h-full justify-between">
-              {/* Icon */}
               <div className="mb-2">
                 <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto">
                   <Users className="text-blue-600" size={28} />
                 </div>
               </div>
-
-              {/* Conteúdo */}
               <div className="flex-1 flex flex-col items-center justify-center py-1">
                 <h2 className="text-sm font-bold text-gray-800 mb-1 line-clamp-2">
                   Cadastro de Alunos
@@ -46,8 +43,6 @@ export default function Landing({ onNavigate }: LandingProps) {
                   Registre e gerencie alunos
                 </p>
               </div>
-
-              {/* Botão */}
               <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-1 mt-2 text-xs flex-shrink-0">
                 Acessar
                 <ArrowRight size={14} />
@@ -61,14 +56,11 @@ export default function Landing({ onNavigate }: LandingProps) {
             className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-4 border-2 border-transparent hover:border-green-500 min-h-64 flex flex-col overflow-hidden"
           >
             <div className="flex flex-col items-center text-center h-full justify-between">
-              {/* Icon */}
               <div className="mb-2">
                 <div className="w-14 h-14 bg-green-100 rounded-full flex items-center justify-center mx-auto">
                   <BookOpen className="text-green-600" size={28} />
                 </div>
               </div>
-
-              {/* Conteúdo */}
               <div className="flex-1 flex flex-col items-center justify-center py-1">
                 <h2 className="text-sm font-bold text-gray-800 mb-1 line-clamp-2">
                   Cadastro de Cursos
@@ -77,9 +69,59 @@ export default function Landing({ onNavigate }: LandingProps) {
                   Crie e gerencie cursos
                 </p>
               </div>
-
-              {/* Botão */}
               <button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-1 mt-2 text-xs flex-shrink-0">
+                Acessar
+                <ArrowRight size={14} />
+              </button>
+            </div>
+          </div>
+
+          {/* Card - Cadastro de Funcionários */}
+          <div
+            onClick={() => onNavigate('funcionarios')}
+            className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-4 border-2 border-transparent hover:border-purple-500 min-h-64 flex flex-col overflow-hidden"
+          >
+            <div className="flex flex-col items-center text-center h-full justify-between">
+              <div className="mb-2">
+                <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mx-auto">
+                  <Briefcase className="text-purple-600" size={28} />
+                </div>
+              </div>
+              <div className="flex-1 flex flex-col items-center justify-center py-1">
+                <h2 className="text-sm font-bold text-gray-800 mb-1 line-clamp-2">
+                  Cadastro de Funcionários
+                </h2>
+                <p className="text-gray-600 text-xs line-clamp-2">
+                  Registre funcionários
+                </p>
+              </div>
+              <button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-1 mt-2 text-xs flex-shrink-0">
+                Acessar
+                <ArrowRight size={14} />
+              </button>
+            </div>
+          </div>
+
+          {/* Card - Cadastro de Cargos */}
+          <div
+            onClick={() => onNavigate('cargos')}
+            className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-4 border-2 border-transparent hover:border-amber-500 min-h-64 flex flex-col overflow-hidden"
+          >
+            <div className="flex flex-col items-center text-center h-full justify-between">
+              <div className="mb-2">
+                <div className="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
+                  <UserCog className="text-amber-600" size={28} />
+                </div>
+              </div>
+              <div className="flex-1 flex flex-col items-center justify-center py-1">
+                <h2 className="text-sm font-bold text-gray-800 mb-1 line-clamp-2">
+                  Cadastro de Cargos
+                </h2>
+                <p className="text-gray-600 text-xs line-clamp-2">
+                  Crie e gerencie cargos
+                </p>
+              </div>
+              <button className="w-full bg-amber-600 hover:bg-amber-700 text-white font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-1 mt-2 text-xs flex-shrink-0">
                 Acessar
                 <ArrowRight size={14} />
               </button>
@@ -92,14 +134,11 @@ export default function Landing({ onNavigate }: LandingProps) {
             className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-4 border-2 border-transparent hover:border-red-500 min-h-64 flex flex-col overflow-hidden"
           >
             <div className="flex flex-col items-center text-center h-full justify-between">
-              {/* Icon */}
               <div className="mb-2">
                 <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto">
                   <Camera className="text-red-600" size={28} />
                 </div>
               </div>
-
-              {/* Conteúdo */}
               <div className="flex-1 flex flex-col items-center justify-center py-1">
                 <h2 className="text-sm font-bold text-gray-800 mb-1 line-clamp-2">
                   Registrar Presença
@@ -108,8 +147,6 @@ export default function Landing({ onNavigate }: LandingProps) {
                   Scanner de QR Code
                 </p>
               </div>
-
-              {/* Botão */}
               <button className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-1 mt-2 text-xs flex-shrink-0">
                 Acessar
                 <ArrowRight size={14} />
@@ -123,14 +160,11 @@ export default function Landing({ onNavigate }: LandingProps) {
             className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-4 border-2 border-transparent hover:border-indigo-500 min-h-64 flex flex-col overflow-hidden"
           >
             <div className="flex flex-col items-center text-center h-full justify-between">
-              {/* Icon */}
               <div className="mb-2">
                 <div className="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center mx-auto">
                   <FileText className="text-indigo-600" size={28} />
                 </div>
               </div>
-
-              {/* Conteúdo */}
               <div className="flex-1 flex flex-col items-center justify-center py-1">
                 <h2 className="text-sm font-bold text-gray-800 mb-1 line-clamp-2">
                   Relatório de Presença
@@ -139,8 +173,6 @@ export default function Landing({ onNavigate }: LandingProps) {
                   Consulte relatórios
                 </p>
               </div>
-
-              {/* Botão */}
               <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-1 mt-2 text-xs flex-shrink-0">
                 Acessar
                 <ArrowRight size={14} />
@@ -154,14 +186,11 @@ export default function Landing({ onNavigate }: LandingProps) {
             className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer p-4 border-2 border-transparent hover:border-orange-500 min-h-64 flex flex-col overflow-hidden"
           >
             <div className="flex flex-col items-center text-center h-full justify-between">
-              {/* Icon */}
               <div className="mb-2">
                 <div className="w-14 h-14 bg-orange-100 rounded-full flex items-center justify-center mx-auto">
                   <Printer className="text-orange-600" size={28} />
                 </div>
               </div>
-
-              {/* Conteúdo */}
               <div className="flex-1 flex flex-col items-center justify-center py-1">
                 <h2 className="text-sm font-bold text-gray-800 mb-1 line-clamp-2">
                   Impressão de QR Codes
@@ -170,8 +199,6 @@ export default function Landing({ onNavigate }: LandingProps) {
                   Imprima QR Codes em lote
                 </p>
               </div>
-
-              {/* Botão */}
               <button className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 px-3 rounded-lg transition flex items-center justify-center gap-1 mt-2 text-xs flex-shrink-0">
                 Acessar
                 <ArrowRight size={14} />

@@ -63,6 +63,7 @@ export interface QRCodeData {
   curso: string;
   fotoUrl: string;
   emailResponsavel: string;
+  tipo?: 'aluno' | 'funcionario';
   geradoEm: string;
 }
 
@@ -82,11 +83,13 @@ export type StatusPresenca = 'presente' | 'saida';
 
 export interface Presenca {
   _id: string;
-  alunoId: string;
+  tipo: 'aluno' | 'funcionario';
+  alunoId?: string;
+  funcionarioId?: string;
   nome: string;
   curso: string;
   fotoUrl: string;
-  emailResponsavel: string;
+  emailResponsavel?: string;
   dataEntrada: string;
   dataSaida?: string;
   status: StatusPresenca;
@@ -121,4 +124,38 @@ export interface RelatorioResponse {
   success: boolean;
   data: Presenca[];
   total: number;
+}
+
+// Funcionário Types
+export interface Funcionario {
+  _id: string;
+  nome: string;
+  cargo: string;
+  fotoUrl: string;
+  fotoPublicId: string;
+  dataCadastro: string;
+  dataAtualizacao: string;
+  qrCodeUrl?: string;
+  qrCodePublicId?: string;
+  qrCodeGerado?: boolean;
+}
+
+export interface CreateFuncionarioPayload {
+  nome: string;
+  cargo: string;
+  fotoUrl: string;
+  fotoPublicId: string;
+}
+
+export interface UpdateFuncionarioPayload extends Partial<CreateFuncionarioPayload> {}
+
+// Cargo Types
+export interface Cargo {
+  _id: string;
+  nome: string;
+  dataCriacao: string;
+}
+
+export interface CreateCargoPayload {
+  nome: string;
 }

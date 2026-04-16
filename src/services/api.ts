@@ -11,6 +11,10 @@ import {
   PresencaDiaResponse,
   HistoricoAlunoResponse,
   RelatorioResponse,
+  Funcionario,
+  CreateFuncionarioPayload,
+  UpdateFuncionarioPayload,
+  Cargo,
 } from '../types/index';
 
 const api: AxiosInstance = axios.create({
@@ -131,6 +135,64 @@ export const presencaAPI = {
   limparPresencaDia: async (): Promise<{ deletedCount: number }> => {
     const response = await api.delete<{ success: boolean; deletedCount: number }>('/presenca/dia?confirmar=true');
     return response.data;
+  },
+};
+
+export const funcionariosAPI = {
+  create: async (data: CreateFuncionarioPayload): Promise<Funcionario> => {
+    const response = await api.post<{ data: Funcionario }>('/funcionarios', data);
+    return response.data.data;
+  },
+
+  getAll: async (): Promise<Funcionario[]> => {
+    const response = await api.get<{ data: Funcionario[] }>('/funcionarios');
+    return response.data.data;
+  },
+
+  getById: async (id: string): Promise<Funcionario> => {
+    const response = await api.get<{ data: Funcionario }>(`/funcionarios/${id}`);
+    return response.data.data;
+  },
+
+  update: async (id: string, data: UpdateFuncionarioPayload): Promise<Funcionario> => {
+    const response = await api.put<{ data: Funcionario }>(`/funcionarios/${id}`, data);
+    return response.data.data;
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/funcionarios/${id}`);
+  },
+
+  uploadFoto: async (fotoBase64: string): Promise<FotoUploadResponse> => {
+    const response = await api.post<{ data: FotoUploadResponse }>('/funcionarios/upload/foto', {
+      foto: fotoBase64,
+    });
+    return response.data.data;
+  },
+
+  generateQRCode: async (id: string): Promise<QRCodeResponse> => {
+    const response = await api.post<QRCodeResponse>(`/funcionarios/${id}/qrcode/generate`);
+    return response.data;
+  },
+
+  deleteQRCode: async (id: string): Promise<void> => {
+    await api.delete(`/funcionarios/${id}/qrcode`);
+  },
+};
+
+export const cargosAPI = {
+  getAll: async (): Promise<Cargo[]> => {
+    const response = await api.get<{ data: Cargo[] }>('/cargos');
+    return response.data.data;
+  },
+
+  create: async (nome: string): Promise<Cargo> => {
+    const response = await api.post<{ data: Cargo }>('/cargos', { nome });
+    return response.data.data;
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/cargos/${id}`);
   },
 };
 
