@@ -126,6 +126,12 @@ export const presencaAPI = {
     });
     return response.data.data;
   },
+
+  // Limpar presenças do dia (para testes)
+  limparPresencaDia: async (): Promise<{ deletedCount: number }> => {
+    const response = await api.delete<{ success: boolean; deletedCount: number }>('/presenca/dia?confirmar=true');
+    return response.data;
+  },
 };
 
 export default api;

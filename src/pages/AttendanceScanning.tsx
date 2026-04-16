@@ -223,6 +223,27 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
     }
   };
 
+  const limparPresencas = async () => {
+    if (!window.confirm('Tem certeza que deseja EXCLUIR TODAS as presenças de HOJE? Esta ação não pode ser desfeita.')) {
+      return;
+    }
+    if (!window.confirm('CONFIRMAÇÃO FINAL: Isso vai excluir todas as presenças de HOJE. Continuar?')) {
+      return;
+    }
+
+    try {
+      await presencaAPI.limparPresencaDia();
+      toast.success('Presenças de hoje foram excluídas!', {
+        position: 'bottom-right',
+      });
+      carregarPresencas();
+    } catch (error) {
+      toast.error('Erro ao limpar presenças', {
+        position: 'bottom-right',
+      });
+    }
+  };
+
   const formatarHora = (data: string) => {
     return new Date(data).toLocaleTimeString('pt-BR', {
       hour: '2-digit',
@@ -339,14 +360,24 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
           <div className="bg-white rounded-lg shadow-md p-6 flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-800">Últimas Entradas</h2>
-              <button
-                onClick={abrirRelatorioNovaAba}
-                className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-sm"
-                title="Abrir relatório em nova aba"
-              >
-                <ExternalLink size={16} />
-                Relatório
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={limparPresencas}
+                  className="flex items-center gap-2 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition text-sm"
+                  title="Limpar presenças de hoje (testes)"
+                >
+                  <X size={16} />
+                  Limpar
+                </button>
+                <button
+                  onClick={abrirRelatorioNovaAba}
+                  className="flex items-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition text-sm"
+                  title="Abrir relatório em nova aba"
+                >
+                  <ExternalLink size={16} />
+                  Relatório
+                </button>
+              </div>
             </div>
 
             {/* Filtro de Curso */}
