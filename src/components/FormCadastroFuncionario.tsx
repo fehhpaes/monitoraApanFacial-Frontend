@@ -15,7 +15,6 @@ export default function FormCadastroFuncionario({ cargos, onSuccess }: FormCadas
   const [fotoCapturada, setFotoCapturada] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [novoCargo, setNovoCargo] = useState('');
 
   const [formData, setFormData] = useState({
     nome: '',
@@ -92,19 +91,6 @@ export default function FormCadastroFuncionario({ cargos, onSuccess }: FormCadas
     }
   };
 
-  const handleAdicionarCargo = () => {
-    if (!novoCargo.trim()) return;
-    
-    const cargoJaExiste = cargos.some(c => c.nome.toLowerCase() === novoCargo.trim().toLowerCase());
-    if (cargoJaExiste) {
-      toast.error('Cargo já existe');
-      return;
-    }
-    
-    setFormData(prev => ({ ...prev, cargo: novoCargo.trim() }));
-    setNovoCargo('');
-  };
-
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">
@@ -135,54 +121,25 @@ export default function FormCadastroFuncionario({ cargos, onSuccess }: FormCadas
           </label>
           
           {cargos.length > 0 ? (
-            <div className="space-y-2">
-              <select
-                name="cargo"
-                value={formData.cargo}
-                onChange={handleInputChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${
-                  errors.cargo ? 'border-red-500' : 'border-gray-300'
-                }`}
-              >
-                <option value="">Selecione um cargo</option>
-                {cargos.map((cargo) => (
-                  <option key={cargo._id} value={cargo.nome}>
-                    {cargo.nome}
-                  </option>
-                ))}
-              </select>
-              
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">Ou adicione um novo:</span>
-              </div>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={novoCargo}
-                  onChange={(e) => setNovoCargo(e.target.value)}
-                  placeholder="Novo cargo..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-                <button
-                  type="button"
-                  onClick={handleAdicionarCargo}
-                  className="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg text-sm"
-                >
-                  Adicionar
-                </button>
-              </div>
-            </div>
-          ) : (
-            <input
-              type="text"
+            <select
               name="cargo"
               value={formData.cargo}
               onChange={handleInputChange}
-              placeholder="Digite o cargo"
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${
                 errors.cargo ? 'border-red-500' : 'border-gray-300'
               }`}
-            />
+            >
+              <option value="">Selecione um cargo</option>
+              {cargos.map((cargo) => (
+                <option key={cargo._id} value={cargo.nome}>
+                  {cargo.nome}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <div className="text-sm text-gray-500 bg-yellow-50 p-3 rounded">
+              Nenhum cargo cadastrado. Cadastre primeiro na página "Cargos".
+            </div>
           )}
           {errors.cargo && <p className="text-red-500 text-xs mt-1">{errors.cargo}</p>}
         </div>
