@@ -395,13 +395,61 @@ export function AttendanceReport({ onBack }: AttendanceReportProps) {
           </div>
 
           {/* Informações */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
             <p className="text-sm text-blue-800">
               <strong>{presencasRelatorio.length}</strong> aluno(s) com presença registrada no período selecionado
               {cursoFiltro && ` - ${cursoFiltro}`}
             </p>
             {loadingRelatorio && <p className="text-sm text-blue-600 mt-2 animate-pulse">Carregando dados...</p>}
           </div>
+
+          {/* Lista de Presenças */}
+          {presencasRelatorio.length > 0 && (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border px-3 py-2 text-left font-semibold">Nome</th>
+                    <th className="border px-3 py-2 text-left font-semibold">Curso</th>
+                    <th className="border px-3 py-2 text-left font-semibold">Status</th>
+                    <th className="border px-3 py-2 text-left font-semibold">Entrada</th>
+                    <th className="border px-3 py-2 text-left font-semibold">Saída</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {presencasRelatorio.map((presenca) => (
+                    <tr key={presenca._id} className="hover:bg-gray-50">
+                      <td className="border px-3 py-2">{presenca.nome}</td>
+                      <td className="border px-3 py-2">{presenca.curso}</td>
+                      <td className="border px-3 py-2">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                            presenca.status === 'presente'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-blue-100 text-blue-800'
+                          }`}
+                        >
+                          {presenca.status === 'presente' ? 'Entrada' : 'Saída'}
+                        </span>
+                      </td>
+                      <td className="border px-3 py-2">
+                        {presenca.dataEntrada ? formatarHora(presenca.dataEntrada) : '-'}
+                      </td>
+                      <td className="border px-3 py-2">
+                        {presenca.dataSaida ? formatarHora(presenca.dataSaida) : 'Pendente'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {presencasRelatorio.length === 0 && !loadingRelatorio && (
+            <p className="text-center text-gray-500 py-8">
+              Nenhum registro de presença encontrado para o período selecionado
+            </p>
+          )}
         </div>
       </div>
     </div>
