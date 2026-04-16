@@ -175,14 +175,16 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
     try {
       setConfirmLoading(true);
 
-      // Registrar presença de fato
-      await presencaAPI.registrar({
-        qrData: confirmationData.qrData,
-      });
-
-      toast.success('Presença registrada com sucesso!', {
-        position: 'bottom-right',
-      });
+      // A presença já foi registrada em onScanSuccess
+      // Apenas confirmar visualmente
+      toast.success(
+        confirmationData.status === 'presente' 
+          ? 'Entrada registrada com sucesso!' 
+          : 'Saída registrada com sucesso!',
+        {
+          position: 'bottom-right',
+        }
+      );
 
       // Fechar modal
       setShowConfirmationModal(false);
@@ -196,7 +198,7 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
       await resumirScanner();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : 'Erro ao registrar presença',
+        error instanceof Error ? error.message : 'Erro ao confirmar presença',
         { position: 'bottom-right' }
       );
     } finally {
