@@ -642,59 +642,68 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
                 Confirmar Presença
               </h2>
 
-              {/* Dados do Aluno */}
-              <div className="space-y-4 mb-8">
-                {confirmationData.fotoUrl && (
-                  <div className="flex justify-center">
-                    <img
-                      src={confirmationData.fotoUrl}
-                      alt={confirmationData.nome}
-                      className="w-32 h-32 rounded-full object-cover border-4 border-blue-500"
-                    />
+                {/* Conteúdo do Modal: Foto e Informações */}
+                <div className="flex flex-col md:flex-row gap-6 mb-8">
+                  {/* Lado Esquerdo: Foto Ampliada */}
+                  <div className="w-full md:w-1/2 flex justify-center">
+                    {confirmationData.fotoUrl ? (
+                      <img
+                        src={confirmationData.fotoUrl}
+                        alt={confirmationData.nome}
+                        className="w-full aspect-square max-w-[300px] rounded-lg object-cover border-4 border-blue-500 shadow-md"
+                      />
+                    ) : (
+                      <div className="w-full aspect-square max-w-[300px] bg-gray-200 rounded-lg flex items-center justify-center border-4 border-gray-300">
+                        <CameraOff size={48} className="text-gray-400" />
+                      </div>
+                    )}
                   </div>
-                )}
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <label className="text-sm font-medium text-gray-600 block mb-1">
-                    Nome do Aluno
-                  </label>
-                  <p className="text-lg font-semibold text-gray-800">
-                    {confirmationData.nome}
-                  </p>
-                </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <label className="text-sm font-medium text-gray-600 block mb-1">
-                    Curso
-                  </label>
-                  <p className="text-lg font-semibold text-gray-800">
-                    {confirmationData.curso}
-                  </p>
-                </div>
+                  {/* Lado Direito: Dados do Aluno */}
+                  <div className="w-full md:w-1/2 space-y-4 flex flex-col justify-center">
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <label className="text-sm font-medium text-gray-600 block mb-1">
+                        Nome do Aluno
+                      </label>
+                      <p className="text-xl font-bold text-gray-800">
+                        {confirmationData.nome}
+                      </p>
+                    </div>
 
-                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                  <label className="text-sm font-medium text-gray-600 block mb-1">
-                    Status
-                  </label>
-                  <p
-                    className={`text-lg font-semibold ${
-                      confirmationData.status === 'presente'
-                        ? 'text-green-600'
-                        : 'text-blue-600'
-                    }`}
-                  >
-                    {confirmationData.status === 'presente' ? 'Entrada' : 'Saída'}
-                  </p>
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <label className="text-sm font-medium text-gray-600 block mb-1">
+                        Curso
+                      </label>
+                      <p className="text-lg font-semibold text-gray-800">
+                        {confirmationData.curso}
+                      </p>
+                    </div>
+
+                    <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                      <label className="text-sm font-medium text-gray-600 block mb-1">
+                        Status
+                      </label>
+                      <p
+                        className={`text-xl font-bold ${
+                          confirmationData.status === 'presente'
+                            ? 'text-green-600'
+                            : 'text-blue-600'
+                        }`}
+                      >
+                        {confirmationData.status === 'presente' ? 'Entrada' : 'Saída'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Contagem Regressiva */}
                 {contagemRegressiva !== null && (
-                  <div className="text-center">
+                  <div className="text-center mb-6">
                     <p className="text-sm text-orange-600 font-semibold">
                       Esta janela fechará em {contagemRegressiva}s
                     </p>
                   </div>
                 )}
-              </div>
 
               {/* Botões */}
               <div className="flex gap-3">
