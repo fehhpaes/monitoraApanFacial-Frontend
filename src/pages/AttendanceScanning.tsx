@@ -740,3 +740,5 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
     </div>
   );
 }
+
+//Comentario para subir no github
