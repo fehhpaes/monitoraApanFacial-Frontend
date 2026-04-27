@@ -637,7 +637,7 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
         {/* Modal de Confirmação */}
         {showConfirmationModal && confirmationData && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg shadow-lg max-w-md w-full p-8">
+            <div className="bg-white rounded-lg shadow-lg max-w-3xl w-full p-10">
               <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
                 Confirmar Presença
               </h2>
@@ -650,10 +650,10 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
                       <img
                         src={confirmationData.fotoUrl}
                         alt={confirmationData.nome}
-                        className="w-full aspect-square max-w-[300px] rounded-lg object-cover border-4 border-blue-500 shadow-md"
+                         className="w-full aspect-square max-w-[400px] rounded-lg object-cover border-4 border-blue-500 shadow-md"
                       />
                     ) : (
-                      <div className="w-full aspect-square max-w-[300px] bg-gray-200 rounded-lg flex items-center justify-center border-4 border-gray-300">
+                      <div className="w-full aspect-square max-w-[400px] bg-gray-200 rounded-lg flex items-center justify-center border-4 border-gray-300">
                         <CameraOff size={48} className="text-gray-400" />
                       </div>
                     )}
@@ -662,29 +662,29 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
                   {/* Lado Direito: Dados do Aluno */}
                   <div className="w-full md:w-1/2 space-y-4 flex flex-col justify-center">
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                      <label className="text-sm font-medium text-gray-600 block mb-1">
+                      <label className="text-base font-medium text-gray-600 block mb-1">
                         Nome do Aluno
                       </label>
-                      <p className="text-xl font-bold text-gray-800">
+                      <p className="text-base font-bold text-gray-800">
                         {confirmationData.nome}
                       </p>
                     </div>
 
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                      <label className="text-sm font-medium text-gray-600 block mb-1">
+                      <label className="text-base font-medium text-gray-600 block mb-1">
                         Curso
                       </label>
-                      <p className="text-lg font-semibold text-gray-800">
+                      <p className="text-base font-semibold text-gray-800">
                         {confirmationData.curso}
                       </p>
                     </div>
 
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                      <label className="text-sm font-medium text-gray-600 block mb-1">
+                      <label className="text-base font-medium text-gray-600 block mb-1">
                         Status
                       </label>
                       <p
-                        className={`text-xl font-bold ${
+                        className={`text-base font-bold ${
                           confirmationData.status === 'presente'
                             ? 'text-green-600'
                             : 'text-blue-600'
@@ -741,4 +741,3 @@ export function AttendanceScanning({ onBack }: AttendanceScanningProps) {
   );
 }
 
-//Comentario para subir no github
